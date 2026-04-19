@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Orange Bike Brewing{% endblock %}</title>
+    <style>
+        :root {
+            --orange: #E87A2E;
+            --orange-dark: #C4631F;
+            --orange-light: #FFF3EB;
+            --dark: #1a1a2e;
+            --gray: #6c757d;
+            --light: #f8f9fa;
+            --green: #28a745;
+            --yellow: #ffc107;
+            --red: #dc3545;
+            --white: #ffffff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--light); color: #333; line-height: 1.6;
+        }
+        nav {
+            background: var(--dark); padding: 0 2rem; display: flex;
+            align-items: center; height: 60px; position: sticky; top: 0; z-index: 100;
+        }
+        nav .brand {
+            color: var(--orange); font-size: 1.3rem; font-weight: 700;
+            text-decoration: none; margin-right: 2rem;
+        }
+        nav .nav-links { display: flex; gap: 0.25rem; flex: 1; }
+        nav .nav-right { display: flex; gap: 0.5rem; align-items: center; }
+        nav a {
+            color: #ccc; text-decoration: none; padding: 0.5rem 1rem;
+            border-radius: 6px; font-size: 0.9rem; transition: all 0.2s;
+        }
+        nav a:hover, nav a.active {
+            color: white; background: rgba(232, 122, 46, 0.2);
+        }
+        nav .logout-link { color: #999; font-size: 0.85rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        h1 { font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--dark); }
+        h2 { font-size: 1.3rem; margin-bottom: 1rem; color: var(--dark); }
+        .card-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem; margin-bottom: 2rem;
+        }
+        .card {
+            background: white; border-radius: 12px; padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .card h3 {
+            font-size: 0.85rem; text-transform: uppercase; color: var(--gray);
+            margin-bottom: 0.5rem; letter-spacing: 0.5px;
+        }
+        .card .big-number { font-size: 2rem; font-weight: 700; color: var(--dark); }
+        .card .big-number.green { color: var(--green); }
+        .card .big-number.orange { color: var(--orange); }
+        .card .big-number.red { color: var(--red); }
+        table {
+            width: 100%; border-collapse: collapse; background: white;
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem;
+        }
+        th {
+            background: var(--dark); color: white; padding: 0.75rem 1rem;
+            text-align: left; font-size: 0.85rem; font-weight: 600;
+        }
+        td {
+            padding: 0.6rem 1rem; border-bottom: 1px solid #eee; font-size: 0.9rem;
+        }
+        tr:hover { background: var(--orange-light); }
+        .text-right { text-align: right; }
+        .form-group { margin-bottom: 1rem; }
+        label {
+            display: block; font-weight: 600; font-size: 0.85rem;
+            margin-bottom: 0.3rem; color: var(--dark);
+        }
+        input, select, textarea {
+            width: 100%; padding: 0.6rem 0.8rem; border: 1px solid #ddd;
+            border-radius: 8px; font-size: 0.95rem; transition: border 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none; border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(232, 122, 46, 0.15);
+        }
+        input[type="number"] { width: 90px; text-align: center; }
+        .form-row {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .btn {
+            display: inline-block; padding: 0.6rem 1.5rem; border: none;
+            border-radius: 8px; font-size: 0.95rem; font-weight: 600;
+            cursor: pointer; text-decoration: none; transition: all 0.2s;
+        }
+        .btn-primary { background: var(--orange); color: white; }
+        .btn-primary:hover { background: var(--orange-dark); }
+        .btn-secondary { background: var(--dark); color: white; }
+        .btn-secondary:hover { background: #2a2a4e; }
+        .btn-sm { padding: 0.35rem 0.8rem; font-size: 0.8rem; }
+        .alert {
+            padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .readonly-banner {
+            background: #fff3cd; color: #856404; padding: 0.6rem 1rem;
+            border-bottom: 1px solid #ffeaa7; text-align: center;
+            font-size: 0.85rem;
+        }
+        .status-dot {
+            display: inline-block; width: 10px; height: 10px;
+            border-radius: 50%; margin-right: 0.4rem;
+        }
+        .status-green { background: var(--green); }
+        .status-yellow { background: var(--yellow); }
+        .status-red { background: var(--red); }
+        .mb-1 { margin-bottom: 1rem; }
+        .mb-2 { margin-bottom: 2rem; }
+        .mt-1 { margin-top: 1rem; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .sku-grid {
+            display: grid; grid-template-columns: 1fr repeat(3, 90px);
+            gap: 0.5rem; align-items: center;
+        }
+        .sku-grid .header {
+            font-weight: 700; font-size: 0.8rem; color: var(--gray);
+            text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid var(--dark);
+        }
+        .sku-grid .style-label { font-weight: 600; font-size: 0.9rem; }
+        .sku-grid .category-tag {
+            font-size: 0.7rem; padding: 0.1rem 0.4rem;
+            border-radius: 4px; margin-left: 0.5rem;
+        }
+        .tag-core { background: #d4edda; color: #155724; }
+        .tag-seasonal { background: #fff3cd; color: #856404; }
+        .tag-limited { background: #e2e3f1; color: #383d6e; }
+        .upload-zone {
+            border: 2px dashed #ccc; border-radius: 12px; padding: 3rem;
+            text-align: center; cursor: pointer; transition: all 0.2s; background: white;
+        }
+        .upload-zone:hover { border-color: var(--orange); background: var(--orange-light); }
+        .upload-zone input[type="file"] { display: none; }
+        @media (max-width: 768px) {
+            nav { padding: 0 1rem; }
+            nav .nav-links { flex-wrap: wrap; }
+            .container { padding: 1rem; }
+            .card-grid { grid-template-columns: 1fr; }
+            .sku-grid { grid-template-columns: 1fr repeat(3, 70px); }
+        }
+    </style>
+    <script>
+        // Expose URL prefix to inline JS in child templates
+        window.URL_PREFIX = "{{ URL_PREFIX }}";
+    </script>
+</head>
+<body>
+    {% if authenticated %}
+    <nav>
+        <a href="{{ url_for('dashboard') }}" class="brand">Orange Bike Brewing</a>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}" {% if request.endpoint == 'dashboard' %}class="active"{% endif %}>Dashboard</a>
+            <a href="{{ url_for('browse') }}" {% if request.endpoint == 'browse' %}class="active"{% endif %}>Browse</a>
+            <a href="{{ url_for('orders_list') }}" {% if request.endpoint in ('orders_list', 'order_new') %}class="active"{% endif %}>Orders</a>
+            <a href="{{ url_for('inventory_view') }}" {% if request.endpoint in ('inventory_view', 'inventory_new') %}class="active"{% endif %}>Inventory</a>
+            <a href="{{ url_for('accounts_list') }}" {% if request.endpoint in ('accounts_list', 'account_new') %}class="active"{% endif %}>Accounts</a>
+            {% if not READ_ONLY %}
+            <a href="{{ url_for('photo_inventory') }}" {% if request.endpoint == 'photo_inventory' %}class="active"{% endif %}>Photo AI</a>
+            {% endif %}
+            <a href="{{ url_for('export_page') }}" {% if request.endpoint in ('export_page', 'export_csv', 'export_zip') %}class="active"{% endif %}>Export</a>
+            <a href="{{ url_for('suggestions_view') }}" {% if request.endpoint == 'suggestions_view' %}class="active"{% endif %}>Suggestions</a>
+        </div>
+        <div class="nav-right">
+            <a href="{{ url_for('logout') }}" class="logout-link">Sign out</a>
+        </div>
+    </nav>
+    {% endif %}
+
+    {% if READ_ONLY and authenticated %}
+    <div class="readonly-banner">
+        <strong>Read-only preview</strong> — Browse, query, and download the database. Submit changes via <a href="{{ url_for('suggestions_view') }}" style="color:#856404;text-decoration:underline;">Suggestions</a>.
+    </div>
+    {% endif %}
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}New Order — Orange Bike Brewing{% endblock %}
+{% block content %}
+<h1>New Wholesale Order</h1>
+
+<form method="POST" action="{{ url_for('order_new') }}">
+    <div class="card mb-2">
+        <h2>Order Details</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="invoice_num">Invoice #</label>
+                <input type="text" id="invoice_num" name="invoice_num" placeholder="e.g. 3200">
+            </div>
+            <div class="form-group">
+                <label for="account_name">Account</label>
+                <select id="account_name" name="account_name" required>
+                    <option value="">Select account...</option>
+                    {% for a in accounts %}
+                    <option value="{{ a.account_name }}">{{ a.account_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="week_date">Week Of</label>
+                <input type="date" id="week_date" name="week_date" value="{{ today }}" required>
+            </div>
+            <div class="form-group">
+                <label for="month">Month</label>
+                <select id="month" name="month">
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4" selected>April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <h2>Product Quantities (Cases)</h2>
+        <p style="color:var(--gray); font-size:0.85rem; margin-bottom:1rem;">
+            Enter the number of cases for each SKU ordered. Leave blank for items not ordered.
+        </p>
+
+        <div class="sku-grid">
+            <div class="header">Style</div>
+            <div class="header" style="text-align:center">Cases</div>
+            <div class="header"></div>
+            <div class="header"></div>
+
+            {% for s in styles %}
+            <div class="style-label">
+                {{ s.style_name }}
+                <span class="category-tag tag-{{ s.category }}">{{ s.category }}</span>
+            </div>
+            <div>
+                <input type="number" name="qty_{{ s.style_name }}" min="0" step="0.5" placeholder="0">
+            </div>
+            <div></div>
+            <div></div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Order</button>
+    <a href="{{ url_for('orders_list') }}" class="btn btn-secondary" style="margin-left:0.5rem;">Cancel</a>
+</form>
+{% endblock %}

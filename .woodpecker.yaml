@@ -1,0 +1,35 @@
+steps:
+  - name: build-and-push
+    image: woodpeckerci/plugin-kaniko
+    settings:
+      registry: ci-cd-zot.ci-cd.svc.cluster.local:5000
+      repo: ci-cd-zot.ci-cd.svc.cluster.local:5000/orangebike
+      tags: "latest,${CI_COMMIT_SHA:0:8}"
+      skip_tls_verify: true
+      docker_config_json: '{"auths":{}}'
+
+  - name: deploy
+    image: bitnami/kubectl:latest
+    commands:
+      - |
+        kubectl config set-cluster homelab \
+          --server=$K8S_SERVER \
+          --insecure-skip-tls-verify=true
+      - kubectl config set-credentials deployer --token=$K8S_TOKEN
+      - |
+        kubectl config set-context homelab \
+          --cluster=homelab \
+          --user=deployer \
+          --namespace=staging
+      - kubectl config use-context homelab
+      - sed -i "s|IMAGE_TAG|${CI_COMMIT_SHA:0:8}|g" k8s/deployment.yaml
+      - kubectl apply -f k8s/deployment.yaml
+    environment:
+      K8S_TOKEN:
+        from_secret: K8S_TOKEN
+      K8S_SERVER:
+        from_secret: K8S_SERVER
+
+when:
+  - event: push
+    branch: main

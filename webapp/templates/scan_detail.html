@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Scan #{{ scan.id }} — Orange Bike Brewing{% endblock %}
+{% block content %}
+<div class="flex-between mb-1">
+    <h1>Shelf Scan #{{ scan.id }}</h1>
+    <a href="{{ url_for('photo_inventory') }}" class="btn btn-secondary">Back to Scans</a>
+</div>
+
+<div class="card-grid">
+    <div class="card">
+        <h3>Date</h3>
+        <div style="font-size:1.1rem;font-weight:600;">{{ scan.scan_date[:16] }}</div>
+    </div>
+    <div class="card">
+        <h3>Account</h3>
+        <div style="font-size:1.1rem;font-weight:600;">{{ scan.account_name or 'Not specified' }}</div>
+        {% if scan.location_note %}
+        <div style="color:var(--gray);font-size:0.85rem;">{{ scan.location_note }}</div>
+        {% endif %}
+    </div>
+    <div class="card">
+        <h3>Total Facings</h3>
+        <div class="big-number orange">{{ scan.total_facings }}</div>
+    </div>
+    <div class="card">
+        <h3>Stock Level</h3>
+        {% if scan.stock_level == 'green' %}
+            <div class="big-number green">GREEN</div>
+        {% elif scan.stock_level == 'yellow' %}
+            <div class="big-number" style="color:var(--yellow);">YELLOW</div>
+        {% else %}
+            <div class="big-number" style="color:var(--red);">RED</div>
+        {% endif %}
+    </div>
+</div>
+
+{% if scan.photo_filename %}
+<div class="card mb-2">
+    <h2>Photo</h2>
+    <img src="{{ url_for(\'uploaded_file\', filename=scan.photo_filename) }}"
+         style="max-width:100%; max-height:500px; border-radius:8px; margin-top:0.5rem;"
+         alt="Shelf photo">
+</div>
+{% endif %}
+
+{% if items %}
+<div class="card mb-2">
+    <h2>Products Detected</h2>
+    <table style="margin-top:0.5rem;">
+        <tr>
+            <th>Style</th>
+            <th class="text-right">Count</th>
+            <th>Confidence</th>
+            <th>Notes</th>
+        </tr>
+        {% for item in items %}
+        <tr>
+            <td><strong>{{ item.style_name }}</strong></td>
+            <td class="text-right">
+                {% if item.estimated_count >= 4 %}
+                    <span class="status-dot status-green"></span>
+                {% elif item.estimated_count >= 1 %}
+                    <span class="status-dot status-yellow"></span>
+                {% else %}
+                    <span class="status-dot status-red"></span>
+                {% endif %}
+                {{ item.estimated_count }}
+            </td>
+            <td>
+                {% if item.confidence == 'high' %}
+                    <span style="color:var(--green);">High</span>
+                {% elif item.confidence == 'medium' %}
+                    <span style="color:var(--yellow);">Medium</span>
+                {% else %}
+                    <span style="color:var(--red);">Low</span>
+                {% endif %}
+            </td>
+            <td style="font-size:0.85rem;color:var(--gray);">{{ item.notes or '—' }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% if scan.ai_raw_response %}
+<details class="card" style="cursor:pointer;">
+    <summary style="font-weight:600;">Raw AI Response</summary>
+    <pre style="margin-top:1rem;background:#f8f9fa;padding:1rem;border-radius:8px;font-size:0.8rem;overflow-x:auto;white-space:pre-wrap;">{{ scan.ai_raw_response }}</pre>
+</details>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Accounts — Orange Bike Brewing{% endblock %}
+{% block content %}
+<div class="flex-between mb-1">
+    <h1>Wholesale Accounts ({{ accounts|length }})</h1>
+    <a href="{{ url_for('account_new') }}" class="btn btn-primary">+ New Account</a>
+</div>
+
+<table>
+    <tr>
+        <th>Account</th>
+        <th>Territory</th>
+        <th>City</th>
+        <th>Buyer</th>
+        <th>Pay Method</th>
+        <th class="text-right">Orders</th>
+        <th class="text-right">Total Qty</th>
+    </tr>
+    {% for a in accounts %}
+    <tr>
+        <td><strong>{{ a.account_name }}</strong></td>
+        <td>{{ a.territory or '—' }}</td>
+        <td>{{ a.city or '—' }}</td>
+        <td>{{ a.buyer_name or '—' }}</td>
+        <td>{{ a.pay_method or '—' }}</td>
+        <td class="text-right">
+            {% if a.order_count > 0 %}
+                <span class="status-dot status-green"></span>{{ a.order_count }}
+            {% else %}
+                <span class="status-dot status-red"></span>0
+            {% endif %}
+        </td>
+        <td class="text-right">{{ a.total_qty or 0 }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

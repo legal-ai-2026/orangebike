@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}New Account — Orange Bike Brewing{% endblock %}
+{% block content %}
+<h1>Add New Wholesale Account</h1>
+
+<form method="POST" action="{{ url_for('account_new') }}">
+    <div class="card mb-2">
+        <h2>Account Information</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="account_name">Business Name *</label>
+                <input type="text" id="account_name" name="account_name" required placeholder="e.g. Portland Craft Bar">
+            </div>
+            <div class="form-group">
+                <label for="territory">Territory</label>
+                <select id="territory" name="territory">
+                    <option value="">Select...</option>
+                    <option value="Portland">Portland</option>
+                    <option value="North Region">North Region</option>
+                    <option value="South Region">South Region</option>
+                    <option value="Central">Central</option>
+                    <option value="Coast">Coast</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" placeholder="e.g. Portland">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="address">Full Address</label>
+                <input type="text" id="address" name="address" placeholder="123 Main St, Portland, ME 04101">
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <h2>Contact</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="buyer_name">Buyer Name</label>
+                <input type="text" id="buyer_name" name="buyer_name" placeholder="Primary contact">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="buyer@example.com">
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" placeholder="(207) 555-1234">
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <h2>Operations</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="pay_method">Payment Method</label>
+                <select id="pay_method" name="pay_method">
+                    <option value="">Select...</option>
+                    <option value="ACH">ACH</option>
+                    <option value="Check">Check</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Net 30">Net 30</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="delivery_instructions">Delivery Instructions</label>
+            <textarea id="delivery_instructions" name="delivery_instructions" rows="2"
+                      placeholder="e.g. Use back entrance, ask for manager"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" rows="2" placeholder="Any other notes"></textarea>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Account</button>
+    <a href="{{ url_for('accounts_list') }}" class="btn btn-secondary" style="margin-left:0.5rem;">Cancel</a>
+</form>
+{% endblock %}

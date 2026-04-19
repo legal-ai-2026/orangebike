@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Orange Bike Brewing{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="card-grid">
+    <div class="card">
+        <h3>Wholesale Accounts</h3>
+        <div class="big-number orange">{{ metrics.total_accounts }}</div>
+    </div>
+    <div class="card">
+        <h3>Taproom Transactions</h3>
+        <div class="big-number">{{ metrics.total_taproom_txns }}</div>
+    </div>
+    <div class="card">
+        <h3>Taproom Net Sales</h3>
+        <div class="big-number green">{{ metrics.total_taproom_sales }}</div>
+    </div>
+</div>
+
+<div class="card-grid">
+    <div class="card">
+        <h3>Annual Revenue (Net Total)</h3>
+        <table>
+            <tr><th>Year</th><th class="text-right">Net Total</th></tr>
+            {% for row in metrics.annual_totals %}
+            <tr>
+                <td>{{ row.year }}</td>
+                <td class="text-right">${{ "{:,.2f}".format(row.total) }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Top Beer Styles (Cases Sold)</h3>
+        <table>
+            <tr><th>Style</th><th class="text-right">Cases</th></tr>
+            {% for row in metrics.top_styles %}
+            <tr>
+                <td>{{ row.style_name }}</td>
+                <td class="text-right">{{ row.total_cases }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+<div class="card-grid">
+    <div class="card">
+        <h3>Top Wholesale Accounts</h3>
+        <table>
+            <tr><th>Account</th><th class="text-right">Lines</th><th class="text-right">Qty</th></tr>
+            {% for row in metrics.top_accounts %}
+            <tr>
+                <td>{{ row.account_name }}</td>
+                <td class="text-right">{{ row.order_lines }}</td>
+                <td class="text-right">{{ row.total_qty }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Category Sales (Latest Period)</h3>
+        <table>
+            <tr><th>Category</th><th class="text-right">Net Sales</th></tr>
+            {% for row in metrics.category_sales %}
+            <tr>
+                <td>{{ row.category }}</td>
+                <td class="text-right">${{ "{:,.2f}".format(row.net) }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+<h2>Recent Wholesale Orders</h2>
+<table>
+    <tr>
+        <th>Invoice</th>
+        <th>Account</th>
+        <th>SKU</th>
+        <th class="text-right">Qty</th>
+        <th>Week</th>
+    </tr>
+    {% for row in metrics.recent_orders %}
+    <tr>
+        <td>{{ row.invoice_num }}</td>
+        <td>{{ row.account_name }}</td>
+        <td>{{ row.sku_name }}</td>
+        <td class="text-right">{{ row.quantity }}</td>
+        <td>{{ row.week_date }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

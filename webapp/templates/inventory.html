@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Inventory — Orange Bike Brewing{% endblock %}
+{% block content %}
+<div class="flex-between mb-1">
+    <h1>Can Sales / Inventory</h1>
+    <a href="{{ url_for('inventory_new') }}" class="btn btn-primary">+ Enter Weekly Data</a>
+</div>
+
+<table>
+    <tr>
+        <th>Year</th>
+        <th>Week</th>
+        <th>Style</th>
+        <th>Channel</th>
+        <th class="text-right">Cases</th>
+    </tr>
+    {% for row in data %}
+    <tr>
+        <td>{{ row.year }}</td>
+        <td>{{ row.week_date }}</td>
+        <td>{{ row.style_name }}</td>
+        <td>
+            {% if row.channel == 'TR' %}
+                <span class="status-dot status-green"></span>Tasting Room
+            {% elif row.channel == 'Distro' %}
+                <span class="status-dot status-yellow"></span>Distribution
+            {% else %}
+                <span class="status-dot" style="background:#aaa"></span>Other
+            {% endif %}
+        </td>
+        <td class="text-right">{{ row.total_cases }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% if not data %}
+<p style="text-align:center; color:var(--gray); padding:2rem;">No inventory data yet. <a href="{{ url_for('inventory_new') }}">Add some.</a></p>
+{% endif %}
+{% endblock %}

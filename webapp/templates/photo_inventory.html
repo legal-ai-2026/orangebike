@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block title %}Photo Inventory — Orange Bike Brewing{% endblock %}
+{% block content %}
+<h1>AI Shelf Photo Inventory</h1>
+<p style="color:var(--gray); margin-bottom:1.5rem;">
+    Take a photo of the shelf or cooler and our AI will estimate the current inventory of Orange Bike products.
+    Designed for stewards and store managers — snap a photo, get an instant count.
+</p>
+
+{% if result and result.status == 'analyzed' %}
+<!-- ── Analysis Results ── -->
+<div class="card mb-2" id="results">
+    <div class="flex-between">
+        <h2>Analysis Results</h2>
+        {% set analysis = result.analysis %}
+        {% if analysis.stock_level == 'green' %}
+            <span style="background:var(--green);color:white;padding:0.3rem 1rem;border-radius:20px;font-weight:700;">
+                GREEN — Well Stocked
+            </span>
+        {% elif analysis.stock_level == 'yellow' %}
+            <span style="background:var(--yellow);color:#333;padding:0.3rem 1rem;border-radius:20px;font-weight:700;">
+                YELLOW — Restock Soon
+            </span>
+        {% else %}
+            <span style="background:var(--red);color:white;padding:0.3rem 1rem;border-radius:20px;font-weight:700;">
+                RED — Needs Restock
+            </span>
+        {% endif %}
+    </div>
+
+    {% if result.account_name %}
+    <p style="margin-top:0.5rem;color:var(--gray);">
+        Account: <strong>{{ result.account_name }}</strong>
+        {% if result.location_note %} | {{ result.location_note }}{% endif %}
+    </p>
+    {% endif %}
+
+    {% if analysis.error %}
+    <div class="alert alert-error" style="margin-top:1rem;">
+        {{ analysis.error }}
+    </div>
+    {% endif %}
+
+    {% if analysis.orange_bike_found %}
+    <div class="card-grid" style="margin-top:1rem;">
+        <div class="card" style="box-shadow:none;border:1px solid #eee;">
+            <h3>Total Facings</h3>
+            <div class="big-number orange">{{ analysis.total_facings }}</div>
+        </div>
+        <div class="card" style="box-shadow:none;border:1px solid #eee;">
+            <h3>Styles Found</h3>
+            <div class="big-number">{{ analysis.products|length }}</div>
+        </div>
+        <div class="card" style="box-shadow:none;border:1px solid #eee;">
+            <h3>Reorder?</h3>
+            <div class="big-number {% if analysis.reorder_recommendation == 'yes' %}red{% elif analysis.reorder_recommendation == 'monitor' %}orange{% else %}green{% endif %}" style="font-size:1.5rem;">
+                {{ analysis.reorder_recommendation|upper }}
+            </div>
+            <p style="font-size:0.8rem;color:var(--gray);margin-top:0.3rem;">{{ analysis.reorder_explanation }}</p>
+        </div>
+    </div>
+
+    {% if analysis.products %}
+    <h3 style="margin-top:1.5rem;">Products Detected</h3>
+    <table style="margin-top:0.5rem;">
+        <tr>
+            <th>Style</th>
+            <th class="text-right">Count</th>
+            <th>Confidence</th>
+            <th>Notes</th>
+        </tr>
+        {% for p in analysis.products %}
+        <tr>
+            <td><strong>{{ p.style }}</strong></td>
+            <td class="text-right">
+                {% if p.count >= 4 %}
+                    <span class="status-dot status-green"></span>
+                {% elif p.count >= 1 %}
+                    <span class="status-dot status-yellow"></span>
+                {% else %}
+                    <span class="status-dot status-red"></span>
+                {% endif %}
+                {{ p.count }}
+            </td>
+            <td>
+                {% if p.confidence == 'high' %}
+                    <span style="color:var(--green);">High</span>
+                {% elif p.confidence == 'medium' %}
+                    <span style="color:var(--yellow);">Medium</span>
+                {% else %}
+                    <span style="color:var(--red);">Low</span>
+                {% endif %}
+            </td>
+            <td style="font-size:0.85rem;color:var(--gray);">{{ p.notes }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    {% if analysis.stock_explanation %}
+    <p style="margin-top:1rem;font-size:0.9rem;"><strong>Assessment:</strong> {{ analysis.stock_explanation }}</p>
+    {% endif %}
+
+    {% if analysis.other_observations %}
+    <p style="margin-top:0.5rem;font-size:0.9rem;color:var(--gray);"><strong>Other observations:</strong> {{ analysis.other_observations }}</p>
+    {% endif %}
+
+    {% else %}
+    <div style="margin-top:1rem;padding:1.5rem;background:#f8f9fa;border-radius:8px;text-align:center;">
+        <p style="font-size:1.1rem;font-weight:600;">No Orange Bike products detected</p>
+        <p style="color:var(--gray);">{{ analysis.other_observations or 'The photo may not show a retail shelf, or Orange Bike products are not visible.' }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- ── Upload Form ── -->
+<div class="card mb-2">
+    <h2>Scan a Shelf</h2>
+    <form method="POST" action="{{ url_for('photo_inventory') }}" enctype="multipart/form-data" id="photo-form">
+        <div class="form-row mb-1">
+            <div class="form-group">
+                <label for="account_name">Account (optional)</label>
+                <select id="account_name" name="account_name">
+                    <option value="">Select account...</option>
+                    {% for a in accounts %}
+                    <option value="{{ a.account_name }}">{{ a.account_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="location_note">Location Note (optional)</label>
+                <input type="text" id="location_note" name="location_note"
+                       placeholder="e.g. Main cooler, Aisle 3 endcap">
+            </div>
+        </div>
+
+        <label class="upload-zone" id="upload-zone">
+            <input type="file" name="photo" accept="image/*" capture="environment" id="photo-input">
+            <div id="upload-text">
+                <div style="font-size:2.5rem; margin-bottom:0.5rem;">📸</div>
+                <div style="font-size:1.1rem; font-weight:600; color:var(--dark);">
+                    Tap to take a photo or upload an image
+                </div>
+                <div style="font-size:0.85rem; color:var(--gray); margin-top:0.3rem;">
+                    Point camera at the shelf showing Orange Bike products
+                </div>
+            </div>
+            <div id="preview-container" style="display:none;">
+                <img id="preview-img" style="max-width:100%; max-height:400px; border-radius:8px;" alt="Preview">
+            </div>
+        </label>
+
+        <div class="mt-1">
+            <button type="submit" class="btn btn-primary" id="submit-btn" disabled>
+                Analyze Photo
+            </button>
+            <span id="loading-msg" style="display:none;margin-left:1rem;color:var(--gray);">
+                Analyzing... this may take a few seconds
+            </span>
+        </div>
+    </form>
+</div>
+
+<!-- ── How It Works ── -->
+<div class="card mb-2">
+    <h2>How It Works</h2>
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:1.5rem; margin-top:1rem;">
+        <div>
+            <div style="font-size:1.5rem; margin-bottom:0.3rem;">1. 📷</div>
+            <strong>Snap</strong>
+            <p style="font-size:0.85rem; color:var(--gray);">
+                Take a photo of the cooler, shelf, or display where Orange Bike products are stocked.
+            </p>
+        </div>
+        <div>
+            <div style="font-size:1.5rem; margin-bottom:0.3rem;">2. 🤖</div>
+            <strong>Analyze</strong>
+            <p style="font-size:0.85rem; color:var(--gray);">
+                Claude AI identifies Orange Bike cans by style, counts quantities, and assesses stock levels.
+            </p>
+        </div>
+        <div>
+            <div style="font-size:1.5rem; margin-bottom:0.3rem;">3. 📊</div>
+            <strong>Report</strong>
+            <p style="font-size:0.85rem; color:var(--gray);">
+                Get an instant inventory estimate with red/yellow/green stock levels and reorder recommendations.
+            </p>
+        </div>
+        <div>
+            <div style="font-size:1.5rem; margin-bottom:0.3rem;">4. 🔔</div>
+            <strong>Alert</strong>
+            <p style="font-size:0.85rem; color:var(--gray);">
+                Low stock triggers a reorder recommendation. All scans are saved for trend analysis.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- ── Scan History ── -->
+{% if recent_scans %}
+<h2>Recent Scans</h2>
+<table>
+    <tr>
+        <th>Date</th>
+        <th>Account</th>
+        <th>Location</th>
+        <th class="text-right">Facings</th>
+        <th>Status</th>
+        <th></th>
+    </tr>
+    {% for scan in recent_scans %}
+    <tr>
+        <td>{{ scan.scan_date[:16] }}</td>
+        <td>{{ scan.account_name or '—' }}</td>
+        <td>{{ scan.location_note or '—' }}</td>
+        <td class="text-right">{{ scan.total_facings }}</td>
+        <td>
+            {% if scan.stock_level == 'green' %}
+                <span class="status-dot status-green"></span>Green
+            {% elif scan.stock_level == 'yellow' %}
+                <span class="status-dot status-yellow"></span>Yellow
+            {% else %}
+                <span class="status-dot status-red"></span>Red
+            {% endif %}
+        </td>
+        <td><a href="{{ url_for(\'scan_detail\', scan_id=scan.id) }}" class="btn btn-sm btn-secondary">View</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+<script>
+    const input = document.getElementById('photo-input');
+    const preview = document.getElementById('preview-img');
+    const previewContainer = document.getElementById('preview-container');
+    const uploadText = document.getElementById('upload-text');
+    const submitBtn = document.getElementById('submit-btn');
+    const loadingMsg = document.getElementById('loading-msg');
+    const form = document.getElementById('photo-form');
+
+    input.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                preview.src = ev.target.result;
+                previewContainer.style.display = 'block';
+                uploadText.style.display = 'none';
+                submitBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    form.addEventListener('submit', function() {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Analyzing...';
+        loadingMsg.style.display = 'inline';
+    });
+</script>
+{% endblock %}

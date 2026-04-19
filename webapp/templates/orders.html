@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Wholesale Orders — Orange Bike Brewing{% endblock %}
+{% block content %}
+<div class="flex-between mb-1">
+    <h1>Wholesale Orders</h1>
+    <a href="{{ url_for('order_new') }}" class="btn btn-primary">+ New Order</a>
+</div>
+
+<table>
+    <tr>
+        <th>Invoice #</th>
+        <th>Account</th>
+        <th>SKU</th>
+        <th class="text-right">Qty</th>
+        <th>Week</th>
+        <th>Month</th>
+    </tr>
+    {% for row in orders %}
+    <tr>
+        <td>{{ row.invoice_num or '—' }}</td>
+        <td>{{ row.account_name }}</td>
+        <td>{{ row.sku_name }}</td>
+        <td class="text-right">{{ row.quantity }}</td>
+        <td>{{ row.week_date or '—' }}</td>
+        <td>{{ row.month or '—' }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% if not orders %}
+<p style="text-align:center; color:var(--gray); padding:2rem;">No orders yet. <a href="{{ url_for('order_new') }}">Add one.</a></p>
+{% endif %}
+{% endblock %}

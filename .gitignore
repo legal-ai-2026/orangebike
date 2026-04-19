@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+venv/
+.venv/
+env/
+.env
+*.log
+webapp/uploads/
+tableau_exports/
+*.db-wal
+*.db-shm

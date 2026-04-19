@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Export — Orange Bike Brewing{% endblock %}
+{% block content %}
+<div class="flex-between mb-1">
+    <h1>Export Data for Tableau</h1>
+    <a href="{{ url_for('export_zip') }}" class="btn btn-primary">Download All as ZIP</a>
+</div>
+
+<div class="card-grid mb-2">
+    <div class="card">
+        <h3>Total Tables</h3>
+        <div class="big-number">{{ tables|length }}</div>
+    </div>
+    <div class="card">
+        <h3>Total Rows</h3>
+        <div class="big-number orange">{{ "{:,}".format(total_rows) }}</div>
+    </div>
+    <div class="card">
+        <h3>Format</h3>
+        <div class="big-number" style="font-size:1.5rem;">CSV / ZIP</div>
+        <p style="font-size:0.8rem;color:var(--gray);margin-top:0.3rem;">UTF-8 encoded, comma-delimited</p>
+    </div>
+</div>
+
+<h2>Available Tables</h2>
+<table>
+    <tr>
+        <th>Table</th>
+        <th>Description</th>
+        <th class="text-right">Rows</th>
+        <th class="text-right">Columns</th>
+        <th></th>
+    </tr>
+    {% for t in tables %}
+    <tr>
+        <td><strong>{{ t.name }}</strong></td>
+        <td style="color:var(--gray);font-size:0.9rem;">{{ t.description }}</td>
+        <td class="text-right">{{ "{:,}".format(t.rows) }}</td>
+        <td class="text-right">{{ t.columns }}</td>
+        <td>
+            {% if t.rows > 0 %}
+            <a href="{{ url_for(\'export_csv\', table_name=t.name) }}" class="btn btn-sm btn-secondary">CSV</a>
+            {% else %}
+            <span style="color:var(--gray);font-size:0.8rem;">empty</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<div class="card mt-1">
+    <h2>Connecting Tableau</h2>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:2rem; margin-top:1rem;">
+        <div>
+            <h3 style="color:var(--orange);font-size:1rem;">Option 1: CSV Import (Recommended)</h3>
+            <ol style="font-size:0.9rem;color:#555;padding-left:1.2rem;margin-top:0.5rem;line-height:1.8;">
+                <li>Click <strong>"Download All as ZIP"</strong> above</li>
+                <li>Unzip the file on your computer</li>
+                <li>In Tableau: <strong>Connect &gt; Text File</strong></li>
+                <li>Select any CSV to start, then drag others onto the canvas to create joins</li>
+                <li>Join <code>wholesale_orders</code> to <code>accounts</code> on <code>account_name</code></li>
+                <li>Join fact tables to <code>beer_styles</code> on <code>style_name</code></li>
+            </ol>
+        </div>
+        <div>
+            <h3 style="color:var(--orange);font-size:1rem;">Option 2: Direct SQLite</h3>
+            <ol style="font-size:0.9rem;color:#555;padding-left:1.2rem;margin-top:0.5rem;line-height:1.8;">
+                <li>In Tableau Desktop: <strong>Connect &gt; SQLite</strong></li>
+                <li>Navigate to:<br>
+                    <code style="font-size:0.8rem;background:#f0f0f0;padding:0.2rem 0.4rem;border-radius:4px;">
+                        Data/orange_bike.db
+                    </code>
+                </li>
+                <li>All tables appear automatically</li>
+                <li>Drag tables onto the canvas and Tableau will detect relationships</li>
+            </ol>
+            <p style="font-size:0.8rem;color:var(--gray);margin-top:0.5rem;">
+                Note: Tableau Public does not support SQLite — use CSV import instead.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-1">
+    <h2>Suggested Tableau Relationships</h2>
+    <p style="font-size:0.9rem;color:#555;margin-top:0.5rem;">
+        When connecting multiple tables, use these join keys:
+    </p>
+    <table style="margin-top:0.5rem;">
+        <tr><th>From</th><th>To</th><th>Join On</th></tr>
+        <tr>
+            <td>wholesale_orders</td>
+            <td>accounts</td>
+            <td><code>account_name</code></td>
+        </tr>
+        <tr>
+            <td>wholesale_orders</td>
+            <td>beer_styles</td>
+            <td><code>sku_name = style_name</code></td>
+        </tr>
+        <tr>
+            <td>can_sales_weekly</td>
+            <td>beer_styles</td>
+            <td><code>style_name</code></td>
+        </tr>
+        <tr>
+            <td>accounting_transactions</td>
+            <td>accounts</td>
+            <td><code>name = account_name</code></td>
+        </tr>
+    </table>
+</div>
+{% endblock %}
