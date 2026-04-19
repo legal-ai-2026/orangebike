@@ -39,7 +39,7 @@
         <td class="text-right">{{ t.columns }}</td>
         <td>
             {% if t.rows > 0 %}
-            <a href="{{ url_for(\'export_csv\', table_name=t.name) }}" class="btn btn-sm btn-secondary">CSV</a>
+            <a href="{{ url_for('export_csv', table_name=t.name) }}" class="btn btn-sm btn-secondary">CSV</a>
             {% else %}
             <span style="color:var(--gray);font-size:0.8rem;">empty</span>
             {% endif %}
