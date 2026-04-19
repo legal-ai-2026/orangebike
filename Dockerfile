@@ -29,7 +29,7 @@ EXPOSE 8080
 # On first boot it copies the bundled DB to /data/orange_bike.db.
 ENV DB_DIR=/data \
     UPLOADS_DIR=/data/uploads \
-    URL_PREFIX=/orangebike \
+    URL_PREFIX="" \
     READ_ONLY=true \
     PYTHONUNBUFFERED=1
 
