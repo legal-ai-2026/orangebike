@@ -1,7 +1,7 @@
 # Orange Bike Brewing — k8s manifests
 # Namespace: staging
 # Public URL: https://crowdsaasing.com/orangebike/
-# Internal LB: 192.168.0.248
+# Internal LB: 192.168.0.241
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -104,7 +104,7 @@ metadata:
   name: orangebike
   namespace: staging
   annotations:
-    metallb.universe.tf/loadBalancerIPs: "192.168.0.248"
+    metallb.universe.tf/loadBalancerIPs: "192.168.0.241"
 spec:
   type: LoadBalancer
   selector:
