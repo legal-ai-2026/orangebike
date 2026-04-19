@@ -2,7 +2,7 @@
 
 Read-only web app for browsing the unified Orange Bike Brewing operational database.
 
-**Public URL (production):** `https://crowdsaasing.com/orangebike/`
+**Public URL (production):** `https://orangebike.fresnelfabian.com/`
 **Context:** ALY 6080 Integrated Experiential Learning, Roux Institute, Spring 2026
 
 ---
