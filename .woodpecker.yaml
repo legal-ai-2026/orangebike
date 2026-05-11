@@ -11,8 +11,7 @@ steps:
       - /kaniko/executor --dockerfile=Dockerfile --context=. --destination=ci-cd-zot.ci-cd.svc.cluster.local:5000/orangebike:latest --destination=ci-cd-zot.ci-cd.svc.cluster.local:5000/orangebike:$(echo $CI_COMMIT_SHA | cut -c1-8) --insecure --skip-tls-verify
     when:
       branch: main
-      event: push
-      event: manual
+      event: [push, manual]
   # --- Deploy to Staging ---
   - name: deploy-staging
     image: bitnami/kubectl:latest
@@ -32,8 +31,7 @@ steps:
         from_secret: K8S_SERVER
     when:
       branch: main
-      event: push
-      event: manual
+      event: [push, manual]
   # --- Deploy to Production (on tag only) ---
   # Assumes the tagged commit was previously built and pushed on its main-branch push.
   # The tag must point to a commit whose short SHA image exists in the registry.
@@ -53,5 +51,4 @@ steps:
       K8S_SERVER:
         from_secret: K8S_SERVER
     when:
-      event: tag
-      event: manual
+      event: [tag, manual]
