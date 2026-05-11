@@ -1,6 +1,6 @@
 when:
   branch: main
-  event: [push, tag]
+  event: [push, tag, manual]
 steps:
   # --- Build & Push ---
   - name: build-and-push
@@ -12,6 +12,7 @@ steps:
     when:
       branch: main
       event: push
+      event: manual
   # --- Deploy to Staging ---
   - name: deploy-staging
     image: bitnami/kubectl:latest
@@ -32,6 +33,7 @@ steps:
     when:
       branch: main
       event: push
+      event: manual
   # --- Deploy to Production (on tag only) ---
   # Assumes the tagged commit was previously built and pushed on its main-branch push.
   # The tag must point to a commit whose short SHA image exists in the registry.
@@ -52,3 +54,4 @@ steps:
         from_secret: K8S_SERVER
     when:
       event: tag
+      event: manual
